@@ -40,7 +40,7 @@
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     @if (Auth::check() && Auth::user()->role == 'admin')
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('home') }}">Dashboard</a>
+                            <a class="nav-link" href="{{ route('home') }}">Home</a>
                         </li>
                         <li class="nav-item dropdown">
                             <a data-mdb-dropdown-init class="nav-link dropdown-toggle" href="#"
@@ -58,6 +58,19 @@
                                     <a class="dropdown-item" href="{{ route('admin.staffs.index') }}">Data Petugas</a>
                                 </li>
                             </ul>
+                        </li>
+                    @elseif (Auth::check() && Auth::user()->role == 'staff')
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('home') }}">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('staff.dashboard') }}">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('staff.schedules.index') }}">Jadwal Tiket</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ Route('staff.promos.index') }}">Promo</a>
                         </li>
                     @else
                         <li class="nav-item">
@@ -91,12 +104,23 @@
             <!-- Collapsible wrapper -->
         </div>
         <!-- Container wrapper -->
-        <!-- Navbar -->
-
-        {{-- mengisi konten dinamsis --}}
-
-
     </nav>
+{{--
+    @if (Session::get('success'))
+        <div class="alert alert-success">
+            {{ Session::get('success') }}
+            @if (Auth::check())
+                <b>Selamat datang {{ Auth::user()->name }}!</b>
+            @endif
+        </div>
+    @endif --}}
+
+    <!-- Navbar -->
+
+    {{-- mengisi konten dinamsis --}}
+
+
+
     @yield('content')
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"

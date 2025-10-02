@@ -9,18 +9,19 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+        public function up(): void
     {
         Schema::create('promos', function (Blueprint $table) {
-            $table->id();
-            $table->string('promo_code');
-            $table->integer('discount');
-            $table->enum('type',['present','rupiah']);
-            $table->boolean('actived');
-            $table->timestamps();
-            $table->softDeletes();
-        });
+        $table->id();
+        $table->string('promo_code')->unique();
+        $table->integer('discount');
+        $table->enum('type', ['percent', 'rupiah']);
+        $table->boolean('actived')->default(1);
+        $table->timestamps();
+    });
+
     }
+
 
     /**
      * Reverse the migrations.

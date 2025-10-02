@@ -2,16 +2,18 @@
 
 @section('content')
     <div class="w-75 d-block mx-auto my-5">
-        @if (Session::get('success'))
+        @if (Session::get('login_success'))
             <div class="alert alert-success">
-                {{ Session::get('success') }}
+                {{ Session::get('login_success') }}
             </div>
         @endif
+
         @if (Session::get('error'))
             <div class="alert alert-danger">
                 {{ Session::get('error') }}
             </div>
         @endif
+
         <form method="POST" action="{{ route('login.auth') }}">
             @csrf
             <!-- Email input -->
@@ -38,18 +40,18 @@
             </div>
 
             <!-- 2 column grid layout for inline styling -->
-            <div class="row mb-4">
-                <div class="col d-flex justify-content-center">
+            <div class="row mb-4 align-items-center">
+                <div class="col-6 d-flex">
                     <!-- Checkbox -->
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="" id="form2Example34" checked />
-                        <label class="form-check-label" for="form2Example34"> Remember me </label>
+                        <label class="form-check-label ms-1" for="form2Example34">Remember me</label>
                     </div>
                 </div>
 
-                <div class="col">
+                <div class="col-6 text-end">
                     <!-- Simple link -->
-                    <a href="#!">Lupa Euy?</a>
+                    <a href="#!" class="text-decoration-none">Lupa Euy?</a>
                 </div>
             </div>
 

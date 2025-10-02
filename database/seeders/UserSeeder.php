@@ -16,9 +16,9 @@ class UserSeeder extends Seeder
     {
         User::create([
             'name' => 'Admin',
-            'email' => 'admin14@gmail.com',
+            'email' => 'admin7@gmail.com',
             'role' => 'admin',
-            'password' => Hash::make('admin')//bcrypt() cara enskripsi selain hash
+            'password' => Hash::make('admin7')//bcrypt() cara enskripsi selain hash
         ]);
     }
 }

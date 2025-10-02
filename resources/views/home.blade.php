@@ -37,18 +37,18 @@
             <div class="carousel-inner">
                 <div class="carousel-item active">
                     <img src="https://i.pinimg.com/1200x/15/9b/e0/159be0923b9ba6325b73ef5d4e13497c.jpg"
-                        class="d-block w-100" height="550px" style="object-fit: cover" alt="Wild Landscape" />
+                        class="d-block w-100" style="height: 650px; object-fit: cover" alt="Wild Landscape" />
                 </div>
                 <div class="carousel-item">
-                    <img src="https://i.pinimg.com/736x/f0/c5/a3/f0c5a3dd213f2ffb5e0dc099feb0e78d.jpg" class="d-block w-100"
-                        height="550px" style="object-fit: cover" alt="Camera" />
+                    <img src="https://i.pinimg.com/1200x/b8/2d/80/b82d8010c27cec5320fa2d1c8c78bc63.jpg"
+                        class="d-block w-100" style="height: 650px; object-fit: cover" alt="Camera" />
                 </div>
                 <div class="carousel-item">
-                    <img src="https://i.pinimg.com/736x/59/63/a9/5963a9765d39148e6ea6a00073de8ad3.jpg" class="d-block w-100"
-                        height="550px" style="object-fit: cover" alt="Exotic Fruits" />
+                    <img src="https://i.pinimg.com/736x/9e/df/cb/9edfcb871f1a0eaaea23f77385a759e0.jpg"
+                        class="d-block w-100" style="height: 650px; object-fit: cover" alt="Exotic Fruits" />
                 </div>
-
             </div>
+
             <button class="carousel-control-prev" type="button" data-mdb-target="#carouselExampleIndicators"
                 data-mdb-slide="prev">
                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -65,12 +65,15 @@
                 <i class="fa-solid fa-clapperboard text-light"></i>
                 <h5 class="mt-2 text-light">Sedang Tayang</h5>
             </div>
+
             <div>
-                <a href="#" class="btn btn-warning rounded-pill">Semua <i class="fa-solid fa-angle-right"></i></a>
+                <a href="{{ route('home.movies') }}" class="btn btn-warning rounded-pill">Semua <i
+                        class="fa-solid fa-angle-right"></i></a>
             </div>
+
         </div>
 
-        <div class="d-flex gap-2 container">
+        <div class="d-flex-end gap-2 container">
             <button type="button" class="btn btn-outline-primary rounded-pill" data-mdb-ripple-init
                 data-mdb-ripple-color="dark">Semua Film</button>
             <button type="button" class="btn btn-outline-secondary rounded-pill" data-mdb-ripple-init
@@ -81,46 +84,36 @@
                 data-mdb-ripple-color="dark">XXI</button>
         </div>
 
-        <div class="mt-3 d-flex justify-content-center gap-2">
-            <div class="card" style="width: 18rem;">
-                <img src="https://i.pinimg.com/736x/5f/31/6b/5f316b50220823ac81376f3cee4cb579.jpg" class="card-img-top"
-                    alt="Sunset Over the Sea" />
-                {{-- !important : memprioritaskan, jika ada style padding dari akan dibaca yang di style --}}
-                <div class="card-body" style="padding: 0 !important">
-                    <a href="{{ route('schedules.detail') }}" class="btn btn-warning w-100 fw-bold text-dark">Beli Tiket</a>
-                </div>
-            </div>
+        <div class="mt-4 d-flex flex-wrap justify-content-center gap-4">
+            @foreach ($movies as $movie)
+                <div class="card shadow-lg border-0 rounded-3 movie-card" style="width: 15rem;">
+                    <img src="{{ asset('storage/' . $movie->poster) }}" class="card-img-top rounded-top"
+                        alt="{{ $movie->title }}" style="height: 350px; object-fit: cover;" />
 
-            <div class="card" style="width: 18rem;">
-                <img src="https://i.pinimg.com/1200x/d9/45/82/d94582611c1251133f66ed31fea24217.jpg" class="card-img-top"
-                    alt="Sunset Over the Sea" />
-                {{-- !important : memprioritaskan, jika ada style padding dari akan dibaca yang di style --}}
-                <div class="card-body" style="padding: 0 !important">
-                    <a href="{{ route('schedules.detail') }}" class="btn btn-warning w-100 fw-bold text-dark">Beli
-                        Tiket</a>
+                    <div class="card-body p-0">
+                        <p class="card-text text-center bg-primary py-2 m-0">
+                            <a href="{{ route('schedules.detail', $movie['id']) }}"
+                                class="text-warning fw-semibold text-decoration-none">
+                                Beli Tiket
+                            </a>
+                        </p>
+                    </div>
                 </div>
-            </div>
-
-            <div class="card" style="width: 18rem;">
-                <img src="https://i.pinimg.com/1200x/f5/8d/b7/f58db70db0c100f892fc75a0889c5146.jpg" class="card-img-top"
-                    alt="Sunset Over the Sea" />
-                {{-- !important : memprioritaskan, jika ada style padding dari akan dibaca yang di style --}}
-                <div class="card-body" style="padding: 0 !important">
-                    <a href="{{ route('schedules.detail') }}" class="btn btn-warning w-100 fw-bold text-dark">Beli
-                        Tiket</a>
-                </div>
-            </div>
-
-            <div class="card" style="width: 18rem;">
-                <img src="https://i.pinimg.com/736x/6c/ac/87/6cac87767fa12a06f5f937412ea86770.jpg" class="card-img-top"
-                    alt="Sunset Over the Sea" />
-                {{-- !important : memprioritaskan, jika ada style padding dari akan dibaca yang di style --}}
-                <div class="card-body" style="padding: 0 !important">
-                    <a href="{{ route('schedules.detail') }}" class="btn btn-warning w-100 fw-bold text-dark">Beli
-                        Tiket</a>
-                </div>
-            </div>
+            @endforeach
         </div>
+
+        <style>
+            .movie-card {
+                transition: transform 0.2ss ease, box-shadow 0.3s ease;
+            }
+
+            .movie-card:hover {
+                transform: scale(1.05);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            }
+        </style>
+
+
 
         <footer class="bg-body-tertiary text-center text-lg-start mt-4">
 

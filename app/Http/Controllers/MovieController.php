@@ -5,16 +5,53 @@ namespace App\Http\Controllers;
 use App\Models\Movie;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\MovieExport;
 
 class MovieController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
+
+    //coba coba detail
+   public function detail($id)
+{
+    $movie = Movie::findOrFail($id);
+    return view('schedule.detail-film', compact('movie'));
+}
+
     public function index()
     {
         $movies = Movie::all();
         return view('admin.movie.index',compact('movies'));
+    }
+
+    public function home()
+    {
+        // where('field','value') : mencari data
+        // get() : mengambil semua data dari hasil filter
+        // mengurutkan -> orderBy('field','ASC/DESC') : ASC (a-z,0-9,terlama-terbaru), DESC : (z-a,9-0,terbaru-terlama)
+        // limmit (angka) -> mengambil sejumlah yang ditentukan
+        $movies = Movie::where('actived',1)->orderBy('created_at','DESC')->limit(4)->get();
+        return view('home',compact('movies'));
+    }
+
+    public function homeAllMovies()
+    {
+        $movies = Movie::where('actived',1)->orderBy('created_at','DESC')->get();
+        return view('home_movies',compact('movies'));
+    }
+
+    public function movieSchedule($movie_id)
+    {
+        // ambil data film beserta schedule dan bioskop pada schedule
+        // 'schedule.cinema' -> karna relasi cinema adanya di schedule bukan di movie
+        // first() -> amnbil satu data movie
+        $movie = Movie::where('id', $movie_id)->with(['schedules','schedules.cinema'])->first();
+        return view('schedule.movie-schedule', compact('movie'));
+
     }
 
     /**
@@ -71,7 +108,7 @@ class MovieController extends Controller
             'actived' => 1,
         ]);
         if ($createData) {
-            return redirect()->route('admin.movies.index')->with('success', 'Berhasil Membuat Dara Film');
+            return redirect()->route('admin.movies.index')->with('success', 'Berhasil Membuat Data Film');
         } else {
             return redirect()->back()->with('error', 'Gagal Silahkan Coba Lagi');
         }
@@ -165,8 +202,40 @@ class MovieController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Movie $movie)
+    public function destroy($id)
     {
-        //
+        $movie = Movie::findOrFail($id);
+
+        // hapus poster dari storage
+        $filePath = storage_path('app/public/' . $movie->poster);
+        if (file_exists($filePath)) {
+            unlink($filePath);
+        }
+
+        // hapus data film
+        $movie->delete();
+
+        return redirect()->route('admin.movies.index')->with('success', 'Berhasil menghapus data film!');
     }
+
+    public function nonAktif($id)
+{
+    $movie = Movie::findOrFail($id);
+
+    $movie->update([
+        'actived' => 0
+    ]);
+
+    return redirect()->route('admin.movies.index')->with('success', 'Film berhasil dinonaktifkan!');
+}
+
+    public function export()
+    {
+        // file yang akan di unduh
+        $fileName = 'data-film.xlsx';
+        //proses unduh
+        return Excel::download(new MovieExport, $fileName);
+    }
+
+
 }

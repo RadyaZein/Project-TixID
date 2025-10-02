@@ -3,6 +3,8 @@
 
     use App\Models\Cinema;
     use Illuminate\Http\Request;
+    use Maatwebsite\Excel\Facades\Excel;
+    use App\Exports\CinemaExport;
 
     class CinemaController extends Controller
     {
@@ -99,5 +101,14 @@
             } else {
                 return redirect()->back()->with('failed', 'Gagal mengahapus data bioskop');
         }
+        }
+
+         public function export()
+    {
+        // file yang akan di unduh
+        $fileName = 'data-Cinema.xlsx';
+        //proses unduh
+        return Excel::download(new CinemaExport, $fileName);
     }
+
 }

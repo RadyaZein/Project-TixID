@@ -12,16 +12,19 @@
             @if (Session::get('failed'))
                 <div class="alert alert-danger">{{ Session::get('failed') }}</div>
             @endif
+            <a href="{{ route('admin.staffs.export') }}" class="btn btn-secondary me-2">Export (.xls)</a>
             <a href="{{ route('admin.staffs.create') }}" class="btn btn-success">Tambah Data</a>
         </div>
         <h5>Data Pengguna</h5>
         <table class="table my-3 table-bordered">
+            <thead class="table-dark">
             <tr>
                 <th></th>
                 <th class="text-center">Nama</th>
                 <th class="text-center">Email</th>
                 <th class="text-center">Role</th>
                 <th class="text-center">Aksi</th>
+            </thead>
     </div>
     @foreach ($staffs as $key => $staff)
         <tr>

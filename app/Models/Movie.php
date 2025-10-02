@@ -11,4 +11,10 @@ class Movie extends Model
 
     protected $fillable = ['title','genre','description',
     'duration','age_rating','actived','poster','director',];
+
+    // relasi one to many (movie ke schedule) karena on to many namanya jamak
+    public function schedules()
+    {
+        return $this->hasMany(Schedule::class);
+    }
 }

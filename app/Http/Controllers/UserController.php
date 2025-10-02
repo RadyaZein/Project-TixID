@@ -5,6 +5,9 @@
     use App\Models\User;
     use Illuminate\Support\Facades\Hash;
     use Illuminate\Support\Facades\Auth;
+    use App\Exports\StaffExport;
+    use Maatwebsite\Excel\Facades\Excel;
+
 
     class UserController extends Controller
     {
@@ -165,7 +168,7 @@
             if ($createUser) {
                 //redict() : memindahkan halaman, route() : mame routing yang dituju
                 //with() : mengirimkan session, biasanya untuk notifikasi
-                return redirect()->route('login')->with('success', 'silahkan login!');
+                return redirect()->route('login')->with('login_success', 'Silahkan login!');
             } else {
                 //back() : kembali ke halaman sebelumnya
                 return redirect()->back()->with('error', 'Akun gagal dibuat, silahkan coba lagi');
@@ -191,18 +194,36 @@
                 //jika berhasil login (attempt),dicek lagi role nya
                 if (Auth::user()->role == 'admin') {
                     return redirect()->route('admin.dashboard')->with('sucsess', 'Berhasil Login!');
+                } elseif (Auth::user()->role == 'staff') {
+                    return redirect()->route('staff.dashboard')->with('success', 'Berhasil Login!');
                 } else {
-                    return redirect()->route('home')->with('success', 'Berhasil Login!');
+                return redirect()->route('home')->with('success', 'Berhasil Login!');
                 }
             } else {
-                return redirect()->back()->with('error', 'Pastikan email dan password sesuai!');
-        }
+                return redirect()->back()->with('error', 'Gagal Login! Pastikan Email dan Password Benar');
     }
-
+}
     public function logout()
     {
         Auth::logout();
         return redirect()->route('home')->with('logout', 'Berhasil Logout!
         silahkan kogin kembali untuk akses lengkap');
+    }
+
+    public function nonAktif($id)
+    {
+        $staff = User::findOrFail($id);
+        $staff->actived = 0; // set nonaktif
+        $staff->save();
+
+        return redirect()->route('admin.staffs.index')->with('success', 'Staff berhasil dinonaktifkan.');
+    }
+
+    public function export()
+    {
+        // file yang akan di unduh
+        $fileName = 'data-Staff.xlsx';
+        //proses unduh
+        return Excel::download(new StaffExport, $fileName);
     }
  }

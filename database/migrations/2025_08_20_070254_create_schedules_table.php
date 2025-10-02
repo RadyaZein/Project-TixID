@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('schedules', function (Blueprint $table) {
             $table->id();
             $table->foreignId('cinema_id')->constrained('cinemas');
-            $table->foreignId('Movie_id')->constrained('movies');
+            $table->foreignId('movie_id')->constrained('movies');
             $table->time('hours');
             $table->integer('price');
             $table->timestamps();

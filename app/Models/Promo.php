@@ -2,13 +2,19 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
 
 class Promo extends Model
 {
-    use Softdeletes;
-
-    protected $fillable = ['promo_code', 'discount', 'type',
-     'actived'];
+    protected $fillable = [
+        'promo_code',
+        'discount',
+        'type',
+        'actived',
+    ];
 }

@@ -18,4 +18,10 @@ class Cinema extends Model
     'password',
 ];
 
+    // relasi one to many (cinema ke schedule) karena on to many namanya jamak
+    public function schedules()
+    {
+        // pendefinisian jenis relasi (one to one / one to many )
+        return $this->hasMany(Schedule::class);
+    }
 }
