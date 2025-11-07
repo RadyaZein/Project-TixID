@@ -18,6 +18,7 @@ return new class extends Migration
         $table->enum('type', ['percent', 'rupiah']);
         $table->boolean('actived')->default(1);
         $table->timestamps();
+        $table->softDeletes();
     });
 
     }

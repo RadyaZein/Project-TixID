@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Movie;
+use App\Models\Schedule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\MovieExport;
+use Yajra\DataTables\Facades\DataTables;
 
 class MovieController extends Controller
 {
@@ -34,14 +36,25 @@ class MovieController extends Controller
         // get() : mengambil semua data dari hasil filter
         // mengurutkan -> orderBy('field','ASC/DESC') : ASC (a-z,0-9,terlama-terbaru), DESC : (z-a,9-0,terbaru-terlama)
         // limmit (angka) -> mengambil sejumlah yang ditentukan
-        $movies = Movie::where('actived',1)->orderBy('created_at','DESC')->limit(4)->get();
+        $movies = Movie::where('actived',1)->orderBy('created_at','DESC')->limit(5)->get();
         return view('home',compact('movies'));
     }
 
-    public function homeAllMovies()
+    public function homeAllMovies(Request $request)
     {
-        $movies = Movie::where('actived',1)->orderBy('created_at','DESC')->get();
-        return view('home_movies',compact('movies'));
+        //ambil value input search name="search_movie"
+        $title = $request->search_movie;
+        //cek jika input search ada isinya, maka cari data
+        if ($title !=""){
+            //LIKE : mencari data yang mengandung kata tertentu
+            // % dean : mencari kata belakang, % belakang: mencari kata depan, % depan belakang : mencari kata di depan dan belakang
+        $movies = Movie::where('title', 'LIKE', '%'.$title.'%')->where('actived',1)
+        ->orderBy('created_at', 'DESC')->get();
+        }else {
+            $movies = Movie::where('actived', 1)->orderBy('created_at', 'DESC')
+            ->get();
+        }
+        return view('home_movies', compact('movies'));
     }
 
     public function movieSchedule($movie_id)
@@ -203,20 +216,21 @@ class MovieController extends Controller
      * Remove the specified resource from storage.
      */
     public function destroy($id)
-    {
-        $movie = Movie::findOrFail($id);
-
-        // hapus poster dari storage
-        $filePath = storage_path('app/public/' . $movie->poster);
-        if (file_exists($filePath)) {
-            unlink($filePath);
-        }
-
-        // hapus data film
-        $movie->delete();
-
-        return redirect()->route('admin.movies.index')->with('success', 'Berhasil menghapus data film!');
+{
+    $schedules = Schedule::where('movie_id', $id)->count();
+    if ($schedules) {
+        return redirect()->route('admin.movies.index')
+            ->with('failed','Tidak dapat menghapus data film! Data sudah tertaut dengan jadwal tayang');
     }
+
+    $movie = Movie::findOrFail($id);
+
+    //Jangan hapus poster di sini! Cukup soft delete
+    $movie->delete();
+
+    return redirect()->route('admin.movies.index')
+        ->with('success', 'Film dipindahkan ke sampah!');
+}
 
     public function nonAktif($id)
 {
@@ -237,5 +251,74 @@ class MovieController extends Controller
         return Excel::download(new MovieExport, $fileName);
     }
 
+    public function trash()
+    {
+        // ORM yang digunakan terkait softdeletes
+        // OnlyTrashed() -> filter data yang sudah dihapus, delete_at BUKAN NULL
+        // restore() ->megembalikan data yang sudah dihapus (mengahapus nilai tanggal pada deleted_at
+        // forceDelete() -> menghapus data secara permanent, data dihilangkan bahkan dari dbnya
+        $MovieTrash = Movie::onlyTrashed()->get();
+        return view('admin.Movie.trash', compact('MovieTrash'));
+    }
 
+    public function restore($id)
+    {
+        $Movie = Movie::onlyTrashed()->find($id);
+        $Movie->restore();
+        return redirect()->route('admin.movies.index')->with('success', 'Berhasil mengembalikan data!');
+    }
+
+    public function deletePermanent($id)
+    {
+        $Movie = Movie::onlyTrashed()->find($id);
+        $Movie->forceDelete();
+        return redirect()->back()->with('success', 'Berhasil menghapus data secara permanen!');
+    }
+
+
+
+    // public function datatables()
+    // {
+    // }
+
+   public function datatables()
+{
+    $movies = Movie::query();
+
+    return DataTables::of($movies)
+        ->addIndexColumn()
+        ->addColumn('poster_img', function($movie){
+            $url = asset('storage/'.$movie->poster);
+            return '<img src="'.$url.'" width="70">';
+        })
+        ->addColumn('actived_badge', function($movie){
+            return $movie->actived
+                ? '<span class="badge bg-success">Aktif</span>'
+                : '<span class="badge bg-danger">Non Aktif</span>';
+        })
+        ->addColumn('action', function($movie){
+            $btnDetail = '<button type="button" class="btn btn-secondary" onclick=\'showModal('. json_encode($movie).')\'>Detail</button>';
+            $btnEdit = '<a href="'.route('admin.movies.edit', $movie->id).'" class="btn btn-primary">Edit</a>';
+            $btnDelete = '
+                <form action="'.route('admin.movies.delete',
+            $movie->id).'" method="POST" style="display:inline-block">
+                    '.csrf_field().method_field('DELETE').'
+                    <button type="submit" class="btn btn-danger">Hapus</button>
+                </form>';
+            $btnNonAktif = '';
+            if ($movie->actived) {
+                $btnNonAktif = '<form action="' . route('admin.movies.nonaktif', $movie->id) . '" method="POST" style="display:inline-block;">'
+    . csrf_field() . method_field('PUT') . '
+    <button type="submit" class="btn btn-warning">Non Aktif</button>
+</form>';
+
+            }
+
+            return '<div class="d-flex justify-content-center align-items-center gap-2">'
+                    .$btnDetail.$btnEdit.$btnNonAktif.$btnDelete.
+                   '</div>';
+        })
+        ->rawColumns(['poster_img','actived_badge','action'])
+        ->make(true);
+}
 }

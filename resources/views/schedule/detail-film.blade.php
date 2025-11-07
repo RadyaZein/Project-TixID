@@ -54,7 +54,7 @@
                     tabindex="0">
                     {{-- Ambil schedule dari relasi movie --}}
                     @foreach ($movie['schedules'] as $schedule)
-                        <div class="w-75 p-2">
+                        <div class=" p-2">
                             <div class="d-flex">
                                 {{-- ambil nama cinema dari relasi schedule --}}
                                 <i class="fa-solid fa-building"></i> <b>{{ $schedule['cinema']['name'] }}</b>
@@ -63,8 +63,10 @@
                             <br>
                             <div class="d-flex flex-wrap">
                                 {{-- looping hours dari schedule --}}
-                                @foreach ($schedule['hours'] as $hours)
-                                    <button class="btn btn-outline-secondary me-2">{{ $hours }}</button>
+                                @foreach ($schedule['hours'] as $index => $hours)
+                                    {{-- this : mengirimkan element html ke js untk di manipulasi --}}
+                                    <button class="btn btn-outline-secondary me-2"
+                                        onclick="selectedHour('{{ $schedule->id }}', '{{ $index }}', this)">{{ $hours }}</button>
                                 @endforeach
                             </div>
                             <hr>
@@ -73,4 +75,54 @@
             </div>
         </div>
     </div>
+    <div class="w-100 fixed-bottom bg-light text-center py-2" id="wrapBtn">
+        {{-- javascript:void(0) : nonaktoifkan href --}}
+        <a href="javascript:void(0)" id="BtnTiket">Beli tiket</a>
+    </div>
 @endsection
+
+@push('script')
+    <script>
+        let btnBefore = null;
+
+        function selectedHour(scheduleId, hourId, element) {
+            // ada btnBefore (sebelumnya pernah klik btn lain)
+            if (btnBefore) {
+                // Ubah warna btn yang di klik sebelumnya ke abu abu lagi
+                btnBefore.style.background = '';
+
+                btnBefore.style.color = '';
+
+                btnBefore.style.borderColor = '';
+            }
+
+            // Ubah warna btn yang di baru diklik sekarang ke biru
+            element.style.background = '#112646';
+
+            element.style.color = 'white';
+
+            element.style.borderColor = '#112646';
+
+            // update btnBefore ke element baru
+
+            btnBefore = element;
+
+
+            let wrapBtn = document.querySelector('#wrapBtn');
+            let btnTiket = document.querySelector('#BtnTiket');
+            // warna biru di tulisan beli tiket
+            wrapBtn.style.background = '#112646';
+            // hapus class bg-light
+            wrapBtn.classList.remove('bg-light');
+            // teks warna putih
+            btnTiket.style.color = 'white';
+
+            // mengarahkan ke route web.php
+            let url = "{{ route('schedules.seats', ['scheduleId' => ':scheduleId', 'hourId' => ':hourId']) }}". replace (':scheduleId', scheduleId). replace (':hourId', hourId);
+            // replace -> mengganti data asli jadi variable js (parameter fungsi). mengisi path dinamis web.php
+            // simpa url di href
+            btnTiket.href = url;
+
+        }
+    </script>
+@endpush

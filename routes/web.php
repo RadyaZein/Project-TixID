@@ -5,16 +5,19 @@
     use App\Http\Controllers\MovieController;
     use App\Http\Controllers\PromoController;
     use App\Http\Controllers\ScheduleController;
+    use App\Http\Controllers\TicketController;
     use Illuminate\Support\Facades\Route;
 
 
+
     //beranda
-    Route::get('/', [MovieConreoller::class, 'home'] )->name('home');
+    Route::get('/', [MovieController::class, 'home'])->name('home');
+
 
     // semua data film
     Route::get('/home/movies', [MovieController::class, 'homeAllMovies'])->name('home.movies');
 
-    // nameasidiasjdia
+    // name : memberi identitas pada route yang di panggil
 
         //middleware : untuk mengelompokkan route yang memerlukan middleware tertentu
         //isGuest : nama middleware yang sudah didaftarkan pada bootstrap/app.php
@@ -41,12 +44,23 @@
     //4 .delete -> menghapus data
 
 
-    Route::get('logout', [UserController::class, 'logout'])->name('logout');
+
 
     // //coba detail
     Route::get('/schedule/{id}', [MovieController::class, 'detail'])->name('schedules.detail');
 
+    // middleware isUser
+    Route::middleware('isUser')->group(function () {
+    // halaman pilihan kursi
+    Route::get('/schedule/{scheduleId}/hours/{hourId}/show-seats', [TicketController::class, 'showSeats'])->name('schedules.seats');
+});
 
+    // m3nu bioskop pada navbar us3r (p3ngguna ummum)
+    Route::get('/cinemas/list', [CinemaController::class, 'cinemaList'])->name('cinemas.list');
+    Route::get('/cinemas/{ciname_id}/schedules', [CinemaController::class, 'cinemaSchedules'])->name('cinemas.schedules');
+
+    // logout
+    Route::get('logout', [UserController::class, 'logout'])->name('logout');
 
     //beranda
     Route::get('/',[MovieController::class,'home'])->name('home');
@@ -54,6 +68,7 @@
     //prefix() : awalan,menulis /admmin sau kali untuk 16 route CRUD
     // (beberapa route)
     //name('admin') : pake titik karna nanti akan digabungkan yang akan digunkan pada route
+    // middleware is admin
     Route::middleware('isadmin')->prefix('/admin')->name('admin.')->group(function(){
         Route::get('dashboard', function(){
             return view('admin.dashboard');
@@ -70,9 +85,15 @@
             Route::put('/update/{id}', [CinemaController::class, 'update'])->name('update');
             Route::delete('/destroy/{id}', [CinemaController::class, 'destroy'])->name('delete');
             Route::get('/export' , [CinemaController::class, 'export'])->name('export');
-        });
+            Route::get('/trash', [cinemaController::class, 'trash'])->name('trash');
+            // restore
+            Route::patch('/restore/{id}', [cinemaController::class, 'restore'])->name('restore');
+            // delete permanen
+            Route::delete('/delete-permanent/{id}', [cinemaController::class, 'deletePermanent'])->name('delete_permanent');
+            Route::get('/datatables', [CinemaController::class, 'datatables'])->name('datatables');
+            });
 
-        // staffs
+        // middleware isStaff
         Route::prefix('/staffs')->name('staffs.')->group(function() {
             Route::get('/', [UserController::class,'index'])->name('index');
             Route::get('create', function(){
@@ -83,7 +104,12 @@
             Route::put('/update/{id}', [UserController::class, 'update'])->name('update');
             Route::delete('/destroy/{id}', [UserController::class, 'destroy'])->name('delete');
             Route::put('/nonaktif/{id}', [UserController::class, 'nonAktif'])->name('nonaktif');
-            Route::get('/export', [UserController::class, 'export'])->name('export');
+            Route::get('/export', [UserController::class, 'export'])->name('export' );
+            Route::get('/trash', [UserController::class, 'trash'])->name('trash');
+            Route::patch('/restore/{id}', [UserController::class, 'restore'])->name('restore');
+            Route::delete('/delete-permanent/{id}', [UserController::class, 'deletePermanent'])->name('delete_permanent');
+            Route::delete('/delete-all-permanent', [UserController::class, 'deleteAllPermanent'])->name('delete_all_permanent');
+            Route::get('/datatables', [UserController::class, 'datatables'])->name('datatables');
         });
 
                 Route::prefix('/movies')->name('movies.')->group(function() {
@@ -95,6 +121,12 @@
                         Route::delete('/destroy/{id}', [MovieController::class, 'destroy'])->name('delete');
                         Route::put('/nonaktif/{id}', [MovieController::class, 'nonAktif'])->name('nonaktif');
                         Route::get('/export', [MovieController::class, 'export'])->name('export');
+                        Route::get('/trash', [MovieController::class, 'trash'])->name('trash');
+                        // restore
+                        Route::patch('/restore/{id}', [MovieController::class, 'restore'])->name('restore');
+                        // delete permanen
+                        Route::delete('/delete-permanent/{id}', [MovieController::class, 'deletePermanent'])->name('delete_permanent');
+                        Route::get('/datatables', [MovieController::class, 'datatables'])->name('datatables');
 
             });
     });
@@ -113,6 +145,14 @@
             Route::delete('/destroy/{id}', [PromoController::class, 'destroy'])->name('destroy');
             Route::patch('/{id}/toggle', [PromoController::class, 'toggle'])->name('toggle');
             Route::get('/export', [PromoController::class, 'export'])->name('export');
+            Route::get('/trash', [PromoController::class, 'trash'])->name('trash');
+            // restore
+            Route::patch('/restore/{id}', [PromoController::class, 'restore'])->name('restore');
+            // delete permanen
+            Route::delete('/delete-permanent/{id}', [PromoController::class, 'deletePermanent'])->name('delete_permanent');
+            // tabless
+            Route::get('/datatables', [PromoController::class, 'datatables'])->name('datatables');
+
         });
 
         // schedules
@@ -122,6 +162,12 @@
             Route::get('/edit/{id}', [ScheduleController::class, 'edit'])->name('edit');
             Route::patch('/update/{id}', [ScheduleController::class, 'update'])->name('update');
             Route::delete('/destroy/{id}', [ScheduleController::class, 'destroy'])->name('delete');
+            Route::get('/trash', [ScheduleController::class, 'trash'])->name('trash');
+            // restore
+            Route::patch('/restore/{id}', [ScheduleController::class, 'restore'])->name('restore');
+            // delete permanen
+            Route::delete('/delete-permanent/{id}', [ScheduleController::class, 'deletePermanent'])->name('delete_permanent');
+            Route::get('/datatables', [ScheduleController::class, 'datatables'])->name('datatables');
             });
 
     });

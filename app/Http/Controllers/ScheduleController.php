@@ -6,6 +6,7 @@ use App\Models\Schedule;
 use App\Models\Cinema;
 use App\models\Movie;
 use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
 
 class ScheduleController extends Controller
 {
@@ -138,4 +139,65 @@ class ScheduleController extends Controller
         return redirect()->route('staff.schedules.index')->with('success', 'Berhasil menghapus data!');
 
     }
+
+    public function trash()
+    {
+        // ORM yang digunakan terkait softdeletes
+        // OnlyTrashed() -> filter data yang sudah dihapus, delete_at BUKAN NULL
+        // restore() ->megembalikan data yang sudah dihapus (mengahapus nilai tanggal pada deleted_at
+        // forceDelete() -> menghapus data secara permanent, data dihilangkan bahkan dari dbnya
+        $scheduleTrash = Schedule::with(['cinema', 'movie'])->onlyTrashed()->get();
+        return view('staff.schedule.trash', compact('scheduleTrash'));
+    }
+
+    public function restore($id)
+    {
+        $schedule = Schedule::onlyTrashed()->find($id);
+        $schedule->restore();
+        return redirect()->route('staff.schedules.index')->with('success', 'Berhasil mengembalikan data!');
+    }
+
+    public function deletePermanent($id)
+    {
+        $schedule = Schedule::onlyTrashed()->find($id);
+        $schedule->forceDelete();
+        return redirect()->back()->with('success', 'Berhasil menghapus data secara permanen!');
+    }
+
+    public function datatables()
+{
+    $data = Schedule::with(['cinema', 'movie'])->get();
+
+    return datatables()->of($data)
+        ->addIndexColumn()
+        ->addColumn('cinema', function ($row) {
+            return $row->cinema->name ?? '-';
+        })
+        ->addColumn('movie', function ($row) {
+            return $row->movie->title ?? '-';
+        })
+        ->addColumn('price', function ($row) {
+            return 'Rp. ' . number_format($row->price, 0, ',', '.');
+        })
+        ->addColumn('hours', function ($row) {
+            $list = '<ul>';
+            foreach ($row->hours as $h) {
+                $list .= "<li>$h</li>";
+            }
+            $list .= '</ul>';
+            return $list;
+        })
+        ->addColumn('action', function ($row) {
+            $edit = '<a href="' . route('staff.schedules.edit', $row->id) . '" class="btn btn-primary btn-sm">Edit</a>';
+            $delete = '
+                <form action="' . route('staff.schedules.delete', $row->id) . '" method="POST" style="display:inline-block;">
+                    ' . csrf_field() . method_field('DELETE') . '
+                    <button type="submit" class="btn btn-danger btn-sm ms-2" onclick="return confirm(\'Yakin?\')">Hapus</button>
+                </form>';
+            return $edit . $delete;
+        })
+        ->rawColumns(['hours', 'action'])
+        ->make(true);
+}
+
 }

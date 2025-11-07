@@ -7,9 +7,23 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Ticket extends Model
 {
-    use SoftDeletes;
+     use softDeletes;
 
-    protected $fillable = ['user_id', 'schedule_id', 'date',
-    'quantity', 'total_price', 'actived', 'promo_id',
-    'rows_of_seat'];
+    protected $fillable = [
+        'user_id',
+        'schedule_id',
+        'promo_id',
+        'rows_of_seats',
+        'quantity',
+        'total_price',
+        'activated',
+        // 'date',
+        'date',
+        'hours'
+    ];
+
+    protected function casts(): array
+    {
+        return ['rows_of_seats' => 'array'];
+    }
 }

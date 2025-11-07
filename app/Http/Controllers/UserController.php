@@ -7,6 +7,7 @@
     use Illuminate\Support\Facades\Auth;
     use App\Exports\StaffExport;
     use Maatwebsite\Excel\Facades\Excel;
+    use Yajra\DataTables\Facades\DataTables;
 
 
     class UserController extends Controller
@@ -162,7 +163,7 @@
                 //Hash : enskripsi data (mengubah menjadi karakter acak) agar tidak ada yang bisa menebak isinya
                 'password' => Hash::make($request->password),
                 //pengguna tidaj bisa memilih role (akses), jadi manual ditambahkan 'user'
-                'role' => 'staff',
+                'role' => 'user',
             ]);
 
             if ($createUser) {
@@ -226,4 +227,81 @@
         //proses unduh
         return Excel::download(new StaffExport, $fileName);
     }
- }
+
+    public function trash()
+    {
+    $staffsTrash = User::onlyTrashed()->get();
+    return view('admin.staff.trash', compact('staffsTrash'));
+    }
+
+    public function restore($id)
+    {
+        $staffs = User::withTrashed()->where('id', $id)->first();
+        if ($staffs && $staffs->trashed()) {
+            $staffs->restore();
+            return redirect()->route('admin.staffs.index')->with('success', 'Data staff berhasil dikembalikan.');
+        } else {
+            return redirect()->route('admin.staffs.trash')->with('error', 'Data staff tidak ditemukan atau tidak dihapus.');
+        }
+    }
+
+    public function deletePermanent($id)
+    {
+        $staffs = User::withTrashed()->where('id', $id)->first();
+        if ($staffs && $staffs->trashed()) {
+            $staffs->forceDelete();
+            return redirect()->route('admin.staffs.trash')->with('success', 'Data staff berhasil dihapus permanen.');
+        } else {
+            return redirect()->route('admin.staffs.trash')->with('error', 'Data staff tidak ditemukan atau tidak dihapus.');
+        }
+    }
+
+    public function datatables()
+{
+    $staffs = User::select(['id', 'name', 'email', 'role']);
+
+    return DataTables::of($staffs)
+        ->addIndexColumn()
+        ->addColumn('role_badge', function ($row) {
+            switch ($row->role) {
+                case 'admin':
+                    return '<span class="badge bg-danger">Admin</span>';
+                case 'staff':
+                    return '<span class="badge bg-primary">Staff</span>';
+                default:
+                    return '<span class="badge bg-secondary">User</span>';
+            }
+        })
+        ->addColumn('action', function ($row) {
+            $editUrl = route('admin.staffs.edit', $row->id);
+            $deleteUrl = route('admin.staffs.delete', $row->id);
+
+            return '
+                <a href="'.$editUrl.'" class="btn btn-warning btn-sm">Edit</a>
+                <form action="'.$deleteUrl.'" method="POST" style="display:inline;">
+                    '.csrf_field().method_field('DELETE').'
+                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Yakin ingin hapus data ini?\')">Hapus</button>
+                </form>
+            ';
+        })
+        ->rawColumns(['role_badge', 'action'])
+        ->make(true);
+}
+    public function deleteAllPermanent()
+{
+    // Ambil semua data staff yang sudah dihapus (soft delete)
+    $deletedStaffs = User::onlyTrashed()->where('role', 'staff')->get();
+
+    if ($deletedStaffs->isEmpty()) {
+        return redirect()->back()->with('success', 'Tidak ada data staff yang dihapus.');
+    }
+
+    foreach ($deletedStaffs as $staff) {
+        $staff->forceDelete();
+    }
+
+    return redirect()->route('admin.staffs.trash')->with('success', 'Semua data staff berhasil dihapus permanen.');
+}
+
+
+}

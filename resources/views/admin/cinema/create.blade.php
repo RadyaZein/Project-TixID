@@ -21,7 +21,7 @@
         </div>
 
         <div class="card w-75 mx-auto my-3 p-4">
-            <h5 class="text-center my-3">Buat Daya Bioskop</h5>
+            <h5 class="text-center my-3">Buat Data Bioskop</h5>
             <form action="{{ route('admin.cinemas.store') }}" method="post">
                 @csrf
                 <div class="mb-3">
