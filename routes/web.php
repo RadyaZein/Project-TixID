@@ -46,13 +46,26 @@
 
 
 
-    // //coba detail
+    // coba detail
     Route::get('/schedule/{id}', [MovieController::class, 'detail'])->name('schedules.detail');
 
     // middleware isUser
     Route::middleware('isUser')->group(function () {
     // halaman pilihan kursi
     Route::get('/schedule/{scheduleId}/hours/{hourId}/show-seats', [TicketController::class, 'showSeats'])->name('schedules.seats');
+    Route::prefix('/tickets')->name('tickets.')->group(function() {
+        Route::get('/', [TicketController::class, 'index'])->name('index');
+        Route::post('/', [TicketController::class, 'store'])->name('store');
+
+        Route::get('/{ticketId}/order', [TicketController::class, 'ticketOrder'])->name('order');
+        // pembuatan barcode pembayaranw
+        Route::post('/payment', [TicketController::class, 'ticketPayment'])->name('payment');
+        // halaman yang menampilkan barcode
+        Route::get('/{ticketId}/payment', [TicketController::class, 'ticketPaymentPage'])-> name('payment.page');
+        Route::patch('/{ticketId}/payment/proof', [TicketController::class, 'paymentProof'])->name('payment.proof');
+        Route::get('/{ticketId}/receipt', [TicketController::class, 'ticketReceipt'])->name('receipt');
+        Route::get('/{ticketId}/pdf', [TicketController::class, 'exportPdf'])->name('export_pdf');
+    });
 });
 
     // m3nu bioskop pada navbar us3r (p3ngguna ummum)
@@ -70,6 +83,7 @@
     //name('admin') : pake titik karna nanti akan digabungkan yang akan digunkan pada route
     // middleware is admin
     Route::middleware('isadmin')->prefix('/admin')->name('admin.')->group(function(){
+        Route::get('/tickets/chart', [TicketController::class, 'chartData'])->name ('tickets.chart');
         Route::get('dashboard', function(){
             return view('admin.dashboard');
         })->name('dashboard');
@@ -113,6 +127,7 @@
         });
 
                 Route::prefix('/movies')->name('movies.')->group(function() {
+                        Route::get('/chart', [MovieController::class, 'chartData'])->name('chart');
                         Route::get('/', [MovieController::class,'index'])->name('index');
                         Route::get('create', [MovieController::class, 'create'])->name('create');
                         Route::post('/store', [MovieController::class, 'store'])->name('store');

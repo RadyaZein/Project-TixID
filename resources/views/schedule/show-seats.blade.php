@@ -43,10 +43,22 @@
                         @if ($nomorKursi == 15)
                             <div style="width: 55px"></div>
                         @endif
-                        <div style="background: #112646; color: white; text-align: center; padding-top: 10px; width: 45px; height: 45px; border-radius: 10px; margin: 10px 3px; cursor: pointer;"
-                            onclick="selectedSeats('{{ $schedule->price }}', '{{ $baris }}','{{ $nomorKursi }}', this)">
-                            {{ $baris }}-{{ $nomorKursi }}
-                        </div>
+                        @php
+                            $seat = $baris . '-' . $nomorKursi;
+                        @endphp
+                        @if (in_array($seat, $seatsFormat))
+                            <div
+                                style="background: #eaeaea; color: black; text-align: center; padding-top: 10px; width: 45px; height: 45px; border-radius: 10px;
+                        margin: 10px 3px; cursor: pointer">
+                                {{ $baris }}-{{ $nomorKursi }}
+                            </div>
+                        @else
+                            <div style="background: #112646; color: white; text-align: center; padding-top: 10px; width: 45px; height: 45px; border-radius: 10px;
+                        margin: 10px 3px; cursor: pointer"
+                                onclick="selectedSeats('{{ $schedule->price }}', '{{ $baris }}', '{{ $nomorKursi }}', this)">
+                                {{ $baris }}-{{ $nomorKursi }}
+                            </div>
+                        @endif
                     @endforeach
                 </div>
             @endforeach
@@ -65,13 +77,19 @@
                 <h5 id="seats">Belum dipilih</h5>
             </div>
         </div>
-        <div class="text-center p-2"><b>RINGKASAN ORDER</b></div>
+        {{-- input hidden yang disembunyikan hanya untuk menyimpan nilai yang diperlukan JS untuk proses tambah data ticker --}}
+        <input type="hidden" name="user_id" id="user_id" value="{{ Auth::user()->id }}">
+        <input type="hidden" name="schedule_id" id="schedule_id" value="{{ $schedule->id }}">
+        <input type="hidden" name="hous" id="hours" value="{{ $hour }}">
+
+        <div class="text-center p-2 w-100" style="cursor: pointer" id="btnOrder"><b>RINGKASAN ORDER</b></div>
     </div>
 @endsection
 @push('script')
     <script>
         // menyimpan data kursi yang dipilih
         let seats = [];
+        let totalPrice = 0;
 
         function selectedSeats(price, baris, nomorKursi, element) {
             // buat A-1
@@ -92,11 +110,53 @@
             let totalPriceElement = document.querySelector("#totalPrice");
             let seatsElement = document.querySelector("#seats");
             // hitung harga dari parameter dikali jumlah kursi yang dipilih
-            let totalPrice = price * (seats.length); // lenght : menghitung jumlah item array
+            totalPrice = price * (seats.length); // lenght : menghitung jumlah item array
             // simpan harga di element html
             totalPriceElement.innerText = "Rp. " + totalPrice;
             // join(", ") : mengubah array jadi sting dipishkan dengan tand tertentu
             seatsElement.innerText = seats.join(", ");
+
+            let btnOrder = document.querySelector("#btnOrder");
+            // seats array isinya lebih dari sama dengan satu, aktifin btnOrder
+            if (seats.length >= 1) {
+                btnOrder.style.background = '#112646';
+                btnOrder.style.color = 'yellow';
+                // untuk mengarahkan ke proses create ticket
+                btnOrder.onclick = createTicket;
+            } else {
+                btnOrder.style.background = '';
+                btnOrder.style.color = '';
+            }
+        }
+
+        function createTicket() {
+            // AJAX (Asynchronous JavaScript And XML)
+            // Digunakan untuk menambah/mengambil data dari database tanpa reload halaman
+            $.ajax({
+                url: "{{ route('tickets.store') }}", //route untuk proses data
+                method: "POST", //http method sesuaii url
+                data: {
+                    // data yg mau dikirim ke route (kalo di html, input form)
+                    _token: "{{ csrf_token() }}",
+                    user_id: $("#user_id").val(), //value+"" dr input id="user_id"
+                    schedule_id: $("#schedule_id").val(),
+                    hours: $("#hours").val(),
+                    quantity: seats.length, // jumlah item array seats
+                    total_price: totalPrice,
+                    rows_of_seats: seats,
+                    //fillable : value
+                },
+                success: function(response) { //kalau berhasil, mau ngapain. data hasil disimpan di respone
+                    // console.log(response)
+                    // redirect JS : window.location.href
+                    // response messae & data
+                    let ticketId = response.data.id;
+                    window.location.href = `/tickets/${ticketId}/order`;
+                },
+                error: function(message) { //kalau diservernya ada error mau ngapain
+                    alert("Terjadi kesalahan ketika membuat data ticket!");
+                }
+            })
         }
     </script>
 @endpush

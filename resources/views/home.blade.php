@@ -43,8 +43,8 @@
                         class="d-block w-100" style="height: 620px; object-fit: cover" alt="Wild Landscape" />
                 </div>
                 <div class="carousel-item">
-                    <img src="https://i.pinimg.com/736x/2e/57/ba/2e57baffa9dab1cf8ccd199aa7686202.jpg"
-                        class="d-block w-100" style="height: 620px; object-fit: cover" alt="Camera" />
+                    <img src="https://i.pinimg.com/736x/2e/57/ba/2e57baffa9dab1cf8ccd199aa7686202.jpg" class="d-block w-100"
+                        style="height: 620px; object-fit: cover" alt="Camera" />
                 </div>
                 <div class="carousel-item">
                     <img src="https://i.pinimg.com/736x/0b/77/25/0b7725a59caa1daacebfe1fc31b6deec.jpg" class="d-block w-100"
@@ -72,7 +72,8 @@
             </div>
 
             <div>
-                <a href="{{ route('home.movies') }}" class="btn btn-info rounded-pill">Semua
+                <a href="{{ route('home.movies') }}" class="btn btn-netflix rounded-pill">
+                    Semua
                     <i class="fa-solid fa-angle-right"></i>
                 </a>
             </div>
@@ -80,7 +81,7 @@
 
         {{-- Filter --}}
         <div class="d-flex-end gap-2 container">
-            <button type="button" class="btn btn-outline-primary rounded-pill">Semua Film</button>
+            <button type="button" class="btn btn-outline-secondary rounded-pill">Semua Film</button>
             <button type="button" class="btn btn-outline-secondary rounded-pill">GUIDO CINEMASX</button>
             <button type="button" class="btn btn-outline-secondary rounded-pill">Cinemapolis</button>
             <button type="button" class="btn btn-outline-secondary rounded-pill">XXI</button>
@@ -117,14 +118,50 @@
         <style>
             body {
                 background-color: #000 !important;
+                color: #fff;
             }
 
+            /* ====== BUTTON NETFLIX ====== */
+            .btn-netflix {
+                background-color: #E50914 !important;
+                border-color: #E50914 !important;
+                color: #fff !important;
+                font-weight: 600;
+                transition: 0.25s ease;
+                border-radius: 50px;
+                padding-inline: 20px;
+            }
+
+            .btn-netflix:hover {
+                background-color: #B20710 !important;
+                border-color: #B20710 !important;
+                box-shadow: 0 0 15px rgba(229, 9, 20, 0.6);
+            }
+
+            /* ====== FILTER BUTTON OUTLINE EFFECT ====== */
+            .btn-outline-secondary {
+                color: #ccc;
+                border-color: #444;
+                transition: 0.25s ease;
+            }
+
+            .btn-outline-secondary:hover {
+                background-color: #E50914 !important;
+                border-color: #E50914 !important;
+                color: #fff !important;
+                box-shadow: 0 0 10px rgba(229, 9, 20, 0.6);
+            }
+
+            /* ====== MOVIE CARD ====== */
             .movie-card {
-                transition: box-shadow 0.4s ease;
+                transition: box-shadow 0.4s ease, transform 0.3s ease;
+                background-color: #111;
+                border: 1px solid #222;
             }
 
             .movie-card:hover {
-                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+                box-shadow: 0 10px 25px rgba(229, 9, 20, 0.5);
+                transform: translateY(-5px);
             }
 
             .image-wrapper {
@@ -136,6 +173,7 @@
                 transform: scale(1.07);
             }
 
+            /* ====== OVERLAY TIXID ====== */
             .overlay {
                 position: absolute;
                 inset: 0;
@@ -148,30 +186,44 @@
                 pointer-events: none;
             }
 
+            .movie-card:hover .overlay {
+                opacity: 1;
+            }
+
             .overlay-text {
                 font-size: 2rem;
                 font-weight: 800;
-                color:#1151b2;
-                /* biru utama */
+                color: #E50914;
+                /* merah netflix */
                 letter-spacing: 2px;
-                text-shadow: 0 0 10px rgba(0, 123, 255, 0.7),
-                    0 0 20px rgba(103, 103, 103, 0.8);
-                /* efek glow biru gelap */
+                text-shadow: 0 0 8px rgba(229, 9, 20, 0.8);
                 transition: transform 0.3s ease;
                 transform: scale(1.1);
-            }
-
-
-
-
-            .movie-card:hover .overlay {
-                opacity: 1;
             }
 
             .movie-card:hover .overlay-text {
                 transform: scale(1);
             }
+
+            /* ====== DROPDOWN ====== */
+            .btn-light {
+                background-color: #1a1a1a !important;
+                border: 1px solid #333 !important;
+                color: #fff !important;
+            }
+
+            .btn-light:hover {
+                background-color: #E50914 !important;
+                color: #fff !important;
+            }
+
+            /* FOOTER */
+            footer a {
+                color: #E50914 !important;
+                font-weight: 600;
+            }
         </style>
+
 
         {{-- Footer --}}
         <footer class="bg-dark text-light text-lg-start mt-4">

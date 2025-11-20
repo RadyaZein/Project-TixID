@@ -8,16 +8,17 @@
             <form action="#" method="GET" class="mb-5">
                 <div class="d-flex justify-content-center align-items-center flex-wrap" style="gap: 20px;">
                     {{-- Tombol Kembali ke Halaman Utama (di kiri) --}}
-                    <a href="{{ route('home') }}" class="btn btn-outline-light rounded-pill px-4 fw-semibold">
+                    <a href="{{ route('home') }}" class="btn btn-outline-secondary rounded-pill px-4 fw-semibold">
                         Kembali
                     </a>
 
                     {{-- Input pencarian --}}
-                    <input type="text" name="search_movie" value="{{ request('search_movie') }}" placeholder="Cari film..."
-                        class="form-control w-50 rounded-pill px-4 py-2 border-0 shadow-sm" style="max-width: 500px;">
+                    <input type="text" name="search_movie" value="{{ request('search_movie') }}"
+                        placeholder="Cari film..." class="form-control w-50 rounded-pill px-4 py-2 border-0 shadow-sm"
+                        style="max-width: 500px;">
 
                     {{-- Tombol submit --}}
-                    <button type="submit" class="btn btn-info rounded-pill px-4 fw-semibold">
+                    <button type="submit" class="btn btn-info    rounded-pill px-4 fw-semibold">
                         Cari
                     </button>
                 </div>
@@ -101,15 +102,18 @@
         .overlay-text {
             font-size: 2rem;
             font-weight: 800;
-            color: #007BFF;
-            /* biru utama */
+            color: #E50914;
+            /* merah Netflix */
             letter-spacing: 2px;
-            text-shadow: 0 0 10px rgba(0, 123, 255, 0.7),
-                0 0 20px rgba(0, 0, 50, 0.8);
-            /* efek glow biru gelap */
+            text-shadow:
+                0 0 10px rgba(229, 9, 20, 0.7),
+                /* glow merah */
+                0 0 20px rgba(80, 0, 0, 0.8);
+            /* glow gelap merah */
             transition: transform 0.3s ease;
             transform: scale(1.1);
         }
+
 
 
 
